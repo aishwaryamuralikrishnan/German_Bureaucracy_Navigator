@@ -1,0 +1,96 @@
+# Bilingual glossary of administrative terms. Used for query expansion (so searches
+# use the words official pages use) and injected into the system prompt so answers
+# keep the German term with a short English gloss.
+terms:
+- de: Anmeldung
+  en: address registration (registering your residence)
+- de: Abmeldung
+  en: de-registration when leaving Germany
+- de: Meldebescheinigung
+  en: registration certificate
+- de: Wohnungsgeberbestätigung
+  en: landlord confirmation of move-in
+- de: Bürgeramt / Bürgerbüro / Einwohnermeldeamt
+  en: citizens' office (registration office)
+- de: Ausländerbehörde / Landesamt für Einwanderung
+  en: immigration office (foreigners' authority)
+- de: Aufenthaltstitel
+  en: residence title / residence permit
+- de: Aufenthaltserlaubnis
+  en: temporary residence permit
+- de: Niederlassungserlaubnis
+  en: permanent settlement permit
+- de: Blaue Karte EU
+  en: EU Blue Card
+- de: Fiktionsbescheinigung
+  en: provisional residence document while an application is pending
+- de: Fachkräfteeinwanderungsgesetz
+  en: Skilled Immigration Act
+- de: Engpassberuf
+  en: shortage occupation
+- de: Steueridentifikationsnummer (Steuer-ID)
+  en: tax identification number
+- de: Lohnsteuerklasse / Steuerklasse
+  en: wage tax class
+- de: Finanzamt
+  en: tax office
+- de: Bruttogehalt / Nettogehalt
+  en: gross salary / net salary
+- de: Gesetzliche Krankenversicherung (GKV)
+  en: statutory (public) health insurance
+- de: Private Krankenversicherung (PKV)
+  en: private health insurance
+- de: Krankenkasse
+  en: health insurance fund
+- de: Zusatzbeitrag
+  en: additional contribution rate of a health insurance fund
+- de: Sozialversicherungsnummer / Rentenversicherungsnummer
+  en: social security number / pension insurance number
+- de: Beitragsbemessungsgrenze
+  en: contribution assessment ceiling
+- de: Basiskonto
+  en: basic bank account (legal right for everyone)
+- de: SCHUFA
+  en: credit reference agency / credit score
+- de: Führerschein umschreiben
+  en: convert a foreign driving licence
+- de: Führerscheinstelle
+  en: driving licence office
+- de: Anerkennung
+  en: recognition of foreign qualifications
+- de: Zeugnisbewertung (ZAB)
+  en: statement of comparability for a foreign degree
+- de: anabin
+  en: database of foreign universities and degrees
+- de: Familiennachzug
+  en: family reunification
+- de: Elterngeld
+  en: parental allowance
+- de: Kindergeld
+  en: child benefit
+- de: Standesamt
+  en: civil registry office
+- de: Rundfunkbeitrag
+  en: broadcasting licence fee (per household)
+- de: Mietvertrag
+  en: rental contract
+- de: Termin
+  en: appointment
+- de: Frist
+  en: deadline
+- de: Bescheid
+  en: official decision letter
+- de: Sperrkonto
+  en: blocked account (proof of financing for students)
+- de: Immatrikulationsbescheinigung
+  en: certificate of enrolment
+- de: Werkstudent / Werkstudentin
+  en: working student (max. 20 hours/week in lecture time)
+- de: Minijob
+  en: mini-job (up to 603 EUR/month in 2026)
+- de: Krankenversicherung der Studenten (KVdS)
+  en: statutory student health insurance
+- de: Verpflichtungserklärung
+  en: formal obligation letter (financial guarantee)
+- de: Studentische Hilfskraft (HiWi)
+  en: student assistant at a university

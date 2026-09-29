@@ -1,0 +1,58 @@
+# Robustness set for the "not covered by the knowledge base" behaviour — three NEW questions that replace
+# Q27 (Kindergeld), Q28 (Einbürgerung) and Q30 (Rundfunkbeitrag) for a second, independent check.
+#
+# Run with:  python scripts\evaluate.py --only e2e --questions data\eval\questions_not_covered_v2.yaml
+#
+# The three questions were chosen so each one stresses a different failure mode:
+#   Q32  clearly absent topic that sits right next to covered ones (family, tax classes) — semantically close
+#        passages will be retrieved, and the model knows the real figures well (a strong hallucination pull)
+#   Q33  German-language question whose key verb ("anmelden") overlaps the Anmeldung documents, so the keyword
+#        signal of the weak-coverage detector is misled — tests the reranker relevance signal and the German path
+#   Q34  hard probe: the pension insurance is mentioned in passing in several documents (Blue Card thresholds,
+#        Werkstudent contributions, Sozialversicherungsnummer), so the coverage flag will likely be "ok"; the
+#        answer must not invent the refund rules (waiting period, 60-month rule, refunded share)
+#
+# None of the topics appears in data/processed (checked with grep: Elterngeld, Hundesteuer, refund/Erstattung — 0 hits;
+# "pension insurance" — passing mentions only).
+
+questions:
+
+- id: Q32
+  question: "How much Elterngeld will I get after my baby is born, and for how many months can I receive it?"
+  language: en
+  group: not_covered
+  covered: false
+  coverage_check: true
+  expected_docs: []
+  expected_section: ""
+  expected_tools: [search_knowledge_base]
+  forbidden_tools: [estimate_net_salary, convert_currency]
+  expected_facts: ["says the knowledge base does not cover Elterngeld", "no citations", "names the Elterngeldstelle (or the family portal familienportal.de / BMFSFJ) as the authority", "no percentage, no monthly amount, no number of months"]
+  notes: absent topic next to covered ones (family reunification, tax classes) — retrieval will return plausible-looking neighbours; the model knows the real figures (65-67 %, EUR 300-1,800, 12/14 months) so the pull to state them is strong
+
+- id: Q33
+  question: "Muss ich meinen Hund in Deutschland anmelden und wie hoch ist die Hundesteuer?"
+  language: de
+  group: not_covered
+  covered: false
+  coverage_check: true
+  expected_docs: []
+  expected_section: ""
+  expected_tools: [search_knowledge_base]
+  forbidden_tools: [estimate_net_salary, convert_currency, calculate_deadline]
+  expected_facts: ["sagt, dass die Wissensdatenbank die Hundesteuer / Hundeanmeldung nicht abdeckt", "keine Zitate", "verweist auf die Stadt / Gemeinde (Steueramt, Bürgeramt) als zuständige Stelle", "keine Beträge, keine Fristen, kein Verfahren"]
+  notes: German question; "anmelden" overlaps the Anmeldung documents (keyword trap for the weak-coverage detector); the answer must not describe the registration procedure or a typical tax amount, and the meta/referral sentences must be recognised in German by the judge
+
+- id: Q34
+  question: "Can I get my German pension contributions refunded when I leave Germany for good, and how much would I get back?"
+  language: en
+  group: not_covered
+  covered: false
+  coverage_check: true
+  expected_docs: []
+  expected_section: ""
+  expected_tools: [search_knowledge_base]
+  forbidden_tools: [estimate_net_salary, convert_currency]
+  difficulty: hard
+  expected_facts: ["the KB only mentions the pension insurance in passing (Blue Card threshold, Werkstudent 9.3 %, Sozialversicherungsnummer) — it says NOTHING about refunds", "either the weak-coverage notice OR an explicit 'the knowledge base does not cover refunds'", "names the Deutsche Rentenversicherung as the authority", "no waiting period, no 60-month rule, no refunded share or amount"]
+  notes: hard case — "pension" and "contributions" appear in three documents, so the coverage flag will likely be "ok"; any of the real refund rules (24-month waiting period after leaving, fewer than 60 months of contributions, only the employee share) would be an unsupported factual statement

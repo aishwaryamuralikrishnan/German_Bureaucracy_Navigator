@@ -1,0 +1,396 @@
+# Evaluation question set for the German Bureaucracy Navigator — DEFAULT short set (23 questions).
+#
+# The complete 31-question set is kept in questions_full.yaml (run the scripts with --questions data/eval/questions_full.yaml).
+# IDs are identical in both files so runs on the two sets are comparable; the 8 questions omitted here are
+# Q09, Q10, Q14, Q15, Q17, Q21, Q23 and Q29.
+#
+# Groups (reporting buckets — they do not restrict what the agent may do)
+#   knowledge    the answer needs only the knowledge base (search_knowledge_base)
+#   mixed        the answer needs the knowledge base AND at least one calculator / live-API tool
+#   tool_only    the answer is a pure calculation; a knowledge-base search is optional
+#   not_covered  on-topic, but the knowledge base has no answering passage → the app must say so
+#
+# Fields
+#   id               stable identifier, used in reports
+#   question         exactly what the user types (English or German)
+#   language         en | de   (informational; the app auto-detects)
+#   covered          true = the knowledge base contains a passage that ANSWERS the question
+#   coverage_check   whether the question counts towards the coverage metrics. When true, a knowledge-base
+#                    search is REQUIRED (a missing search counts as a tool-selection failure) and its
+#                    coverage must be "ok" (covered: true) or "weak"/"none" (covered: false).
+#   expected_docs    files in data/processed/ — retrieval is a "hit" if ANY of them appears in the top-k
+#   expected_section the section(s) that answer it (informational, for the reviewer)
+#   expected_tools   tools that MUST be called in the end-to-end run
+#   forbidden_tools  tools that must NOT be called
+#   expected_args    argument values that must appear in (at least one call of) the tool — subset match;
+#                    numbers compared numerically, strings case-insensitively, "any" = present, any value
+#   expected_facts   what a correct answer contains / must not contain — for the reviewer; NOT scored
+#   probe            faithfulness = a question where an unsourced model is likely to add facts the passages
+#                    do not contain (recent rule changes, partial coverage, tempting details). Every answer
+#                    is scored for faithfulness; these are reported as a subgroup.
+#   difficulty       normal | hard  (partially covered topics; reported separately)
+#   notes            why the question is in the set
+
+questions:
+
+# ───────────────────────────── knowledge only (2) ─────────────────────────────
+
+- id: Q01
+  question: "I am a non-EU master's student working as a Werkstudent for €1,400 a month during the semester break. How many days per year may I work, do HiWi jobs count, and will I pay income tax on this?"
+  language: en
+  group: knowledge
+  covered: true
+  coverage_check: true
+  expected_docs: [students_working.md]
+  expected_section: "1. Immigration: how much a non-EU student may work / 4. Taxes"
+  expected_tools: [search_knowledge_base]
+  forbidden_tools: [estimate_net_salary, check_blue_card_salary]
+  expected_facts: ["140 full or 280 half days per calendar year (§ 16b Abs. 3 AufenthG, raised from 120/240 in March 2024)", "HiWi jobs and compulsory internships do not count", "basic allowance EUR 12,348 → little or no income tax over the year, refund via tax return"]
+  probe: faithfulness
+  notes: the 120→140 change is recent; an unsourced answer says 120. The net-salary calculator applies employee social contributions and is WRONG for a Werkstudent, so it is forbidden despite the salary figure
+
+- id: Q02
+  question: "How long is a Verpflichtungserklärung valid, and for how long is the person who signed it liable for me?"
+  language: en
+  group: knowledge
+  covered: true
+  coverage_check: true
+  expected_docs: [students_blocked_account.md]
+  expected_section: "The formal obligation letter (Verpflichtungserklärung) in detail"
+  expected_tools: [search_knowledge_base]
+  forbidden_tools: [calculate_deadline]
+  expected_facts: ["no more than six months between signing and visa issue", "liability limited to five years from entry (§ 68 AufenthG)", "ends earlier when the purpose of stay changes with a new title", "fee EUR 29"]
+  probe: faithfulness
+  notes: the question that produced the "valid for one year" hallucination; now answerable from the KB
+
+# ───────────────────────────── tool only (1) ─────────────────────────────
+
+- id: Q03
+  question: "What is my net salary on €65,000 gross in Bayern, tax class 1, no church tax?"
+  language: en
+  group: tool_only
+  covered: true
+  coverage_check: false
+  expected_docs: [tax_id_and_tax_classes.md]
+  expected_section: "Wage tax classes (Lohnsteuerklassen)"
+  expected_tools: [estimate_net_salary]
+  forbidden_tools: [check_blue_card_salary, convert_currency]
+  expected_args:
+    estimate_net_salary: {gross_annual_eur: 65000, tax_class: 1}
+  expected_facts: ["net monthly figure from the tool", "breakdown: income tax, health, pension, unemployment, care insurance", "estimate ±3 %"]
+  notes: pure calculator question; the search is optional so it is excluded from the coverage metrics (expected_docs is used only by the retrieval script)
+
+# ───────────────────────────── mixed: knowledge base + tools (17) ─────────────────────────────
+
+- id: Q04
+  question: "I moved into my flat in Munich on 20 December 2026. By when must I register, which office is responsible, what happens if I am late, and which documents do I need to bring?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [anmeldung_munich.md, anmeldung.md, checklists.md]
+  expected_section: "Deadline / Documents you need / Munich: Where"
+  expected_tools: [search_knowledge_base, calculate_deadline]
+  forbidden_tools: [check_blue_card_salary, estimate_net_salary, convert_currency]
+  expected_args:
+    search_knowledge_base: {city: "any"}
+    calculate_deadline: {event: "moved_in", event_date: "2026-12-20", city: "any"}
+  expected_facts: ["deadline 2027-01-04 from the tool (3 January 2027 is a Sunday; holidays in between)", "KVR Bürgerbüros, Ruppertstraße 19, online appointment", "late = Ordnungswidrigkeit § 54 BMG, can be fined, small delays usually tolerated", "passport, Wohnungsgeberbestätigung, form"]
+  notes: the core Anmeldung question in one piece (deadline tool + generic and city-specific passages); the exact date must come from the tool
+
+- id: Q05
+  question: "Ich bin am 1. September 2026 nach Rostock gezogen. Wo genau melde ich meine Wohnung an – ein Bürgeramt finde ich auf der Website der Stadt nicht – und bis wann muss ich das tun?"
+  language: de
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [anmeldung_rostock.md]
+  expected_section: "Anmeldung: the Ortsämter"
+  expected_tools: [search_knowledge_base, calculate_deadline]
+  forbidden_tools: []
+  expected_args:
+    calculate_deadline: {event: "moved_in", event_date: "2026-09-01", city: "Rostock"}
+  expected_facts: ["in Rostock heißt die Meldebehörde Ortsamt (fünf Ortsämter, jedes nutzbar)", "Termin ist Pflicht, online über rathaus.rostock.de", "Frist 15.09.2026 (aus dem Tool)", "kostenlos"]
+  notes: German question against an English city document; the Bürgeramt/Ortsamt vocabulary mismatch is what broke retrieval earlier
+
+- id: Q06
+  question: "I arrive in Berlin on 10 October 2026 on a family-reunification (spouse) visa that is valid until 8 January 2027, and I have an Indian driving licence. What should I do in the first weeks, by when must I apply for the residence permit, and am I allowed to work?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [checklists.md, family_reunification.md, student_visa_and_national_visa.md, drivers_licence.md]
+  expected_section: "Timeline for the first weeks / Rights after arrival / Licences from other countries"
+  expected_tools: [search_knowledge_base, calculate_deadline]
+  forbidden_tools: [check_blue_card_salary, estimate_net_salary, convert_currency]
+  expected_args:
+    calculate_deadline: {event: "visa_expiry", event_date: "2027-01-08"}
+  expected_facts: ["first weeks: health insurance, bank account, Wohnungsgeberbestätigung + Anmeldung within 14 days, Steuer-ID by post, Ausländerbehörde appointment before the visa expires", "recommended application date 2026-12-11 from the tool (4 weeks before expiry)", "spouses of skilled workers / Blue Card holders may work immediately", "Indian licence valid 6 months from the Anmeldung, then conversion with theory + practical test"]
+  notes: your "I land in Germany with a visa" question; broad multi-document retrieval plus the visa_expiry deadline rule
+
+- id: Q07
+  question: "My student residence permit expires on 31 March 2027. What is the procedure to extend it, which documents do I need, by when should I apply, and is the 8,000 US dollars currently in my blocked account enough?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [residence_permits_overview.md, checklists.md, students_blocked_account.md, student_visa_and_national_visa.md]
+  expected_section: "Extensions / Checklist: residence permit extension / Renewal and extension / The required amount"
+  expected_tools: [search_knowledge_base, calculate_deadline, convert_currency]
+  forbidden_tools: [estimate_net_salary, check_blue_card_salary]
+  expected_args:
+    calculate_deadline: {event: "residence_permit_expiry", event_date: "2027-03-31"}
+    convert_currency: {amount: 8000, from_currency: "USD"}
+  expected_facts: ["apply at the Ausländerbehörde before expiry; recommended by 2027-02-03 (8 weeks, from the tool)", "documents: passport, current title, Meldebescheinigung, enrolment certificate, health insurance, proof of financing, form", "required amount EUR 992/month = EUR 11,904/year; the converted USD amount is compared with it and found insufficient", "Fiktionsbescheinigung if the appointment is after expiry"]
+  probe: faithfulness
+  notes: your "procedure to extend" question with three tools; the extension fee is NOT in the KB — an invented fee is a faithfulness failure
+
+- id: Q08
+  question: "I graduate from TU Berlin in September 2026 and have a job offer of €46,000 as a software developer. What happens to my student residence permit after graduation, and do I qualify for the EU Blue Card as a recent graduate?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [student_visa_and_national_visa.md, blue_card.md]
+  expected_section: "After graduation / Salary thresholds"
+  expected_tools: [search_knowledge_base, check_blue_card_salary]
+  forbidden_tools: [convert_currency]
+  expected_args:
+    check_blue_card_salary: {gross_annual_salary_eur: 46000, year: 2026}
+  expected_facts: ["job-seeking permit up to 18 months (§ 20 Abs. 3 Nr. 1 AufenthG), any work allowed meanwhile", "switch to Blue Card or § 18b permit once a qualified job is found", "general threshold EUR 50,700 not met, reduced threshold EUR 45,934.20 met (recent graduate / IT)", "settlement permit after two years for German graduates"]
+  probe: faithfulness
+  notes: your "student visa after graduation" question; the reduced-threshold case that was once missed
+
+- id: Q11
+  question: "My EU Blue Card expires on 15 January 2027 and my salary is €50,000. By when should I apply for the extension, and does my salary still meet the threshold?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [residence_permits_overview.md, blue_card.md]
+  expected_section: "Extensions / Salary thresholds"
+  expected_tools: [search_knowledge_base, calculate_deadline, check_blue_card_salary]
+  forbidden_tools: []
+  expected_args:
+    calculate_deadline: {event: "residence_permit_expiry", event_date: "2027-01-15"}
+    check_blue_card_salary: {gross_annual_salary_eur: 50000}
+  expected_facts: ["recommended application date 2026-11-20 (from the tool)", "the salary must meet the threshold valid in the year of the extension (2027)", "the 2027 thresholds are not available (tool only has 2024–2026); against the 2026 general threshold EUR 50,700 it falls short, reduced threshold met", "must NOT invent a 2027 threshold"]
+  probe: faithfulness
+  notes: the tool has no 2027 table — a good test of honest handling of a tool limitation instead of guessing a number
+
+- id: Q12
+  question: "Wir sind verheiratet und wohnen in Berlin. Ich verdiene 60.000 € brutto, meine Frau 20.000 €. Sollten wir Steuerklasse 3/5 oder 4/4 wählen, wer darf wechseln, und was wäre mein monatliches Netto in Steuerklasse 3?"
+  language: de
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [tax_id_and_tax_classes.md]
+  expected_section: "Wage tax classes / Changing your tax class (Steuerklassenwechsel)"
+  expected_tools: [search_knowledge_base, estimate_net_salary]
+  forbidden_tools: [check_blue_card_salary, convert_currency]
+  expected_args:
+    estimate_net_salary: {gross_annual_eur: 60000, tax_class: 3}
+  expected_facts: ["nur Ehepaare/eingetragene Partner dürfen wechseln", "III/V bei stark unterschiedlichen Einkommen – nur der monatliche Abzug ändert sich, die Jahressteuer nicht; Steuererklärung wird Pflicht", "Antrag über ELSTER, beide unterschreiben", "Netto ca. 3.510 €/Monat in Klasse III (aus dem Tool)"]
+  notes: German question against an English document (bilingual expansion) plus the net-salary calculator; answer must be in German
+
+- id: Q13
+  question: "Ich verdiene 82.000 € brutto in Hamburg, Steuerklasse 1, keine Kirchensteuer. Darf ich in die private Krankenversicherung wechseln, was wäre mein Netto in der gesetzlichen, und kann ich später wieder zurück in die GKV?"
+  language: de
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [health_insurance.md]
+  expected_section: "Statutory health insurance (GKV) / Private health insurance (PKV)"
+  expected_tools: [search_knowledge_base, estimate_net_salary]
+  forbidden_tools: [check_blue_card_salary, convert_currency]
+  expected_args:
+    estimate_net_salary: {gross_annual_eur: 82000, tax_class: 1}
+  expected_facts: ["Versicherungspflichtgrenze 2026: 77.400 € – darüber ist PKV möglich", "Rückkehr in die GKV schwierig, besonders ab 55; Arbeitgeberzuschuss bis zur Hälfte", "Netto ca. 4.090 €/Monat (aus dem Tool)"]
+  probe: faithfulness
+  notes: the PKV threshold IS in the KB — the answer must use EUR 77,400, not a remembered older figure
+
+- id: Q16
+  question: "I hold an EU Blue Card with a salary of €58,000 and my wife wants to join me. Does she need to pass a German language test before coming, what are the other requirements, and is my income sufficient?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [family_reunification.md, checklists.md]
+  expected_section: "Requirements for the spouse of a skilled worker or Blue Card holder / Checklist: family reunification"
+  expected_tools: [search_knowledge_base, check_blue_card_salary]
+  forbidden_tools: [convert_currency, calculate_deadline]
+  expected_args:
+    check_blue_card_salary: {gross_annual_salary_eur: 58000}
+  expected_facts: ["spouses of Blue Card holders are exempt from proving A1 before entry", "both ≥ 18, recognised marriage, sufficient living space, secured livelihood, health insurance", "EUR 58,000 meets both Blue Card thresholds; the KB gives no numeric 'secured livelihood' figure — must not invent one", "spouse may work immediately after arrival"]
+  probe: faithfulness
+  notes: the exception rule (exempt from A1) is the trap; 'sufficient income' has no number in the KB
+
+- id: Q18
+  question: "I am a mechanical engineer from Brazil without a job offer. Can I come to Germany to look for work with the Opportunity Card, how long could I stay, and would my savings of 40,000 Brazilian reais be enough to live on?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  difficulty: hard
+  expected_docs: [residence_permits_overview.md]
+  expected_section: "Main titles for skilled workers"
+  expected_tools: [search_knowledge_base, convert_currency]
+  forbidden_tools: [check_blue_card_salary, estimate_net_salary]
+  expected_args:
+    convert_currency: {amount: 40000, from_currency: "BRL"}
+  expected_facts: ["Opportunity Card (Chancenkarte, § 20a AufenthG): points-based, job search for up to one year; job-seeker visa for academics (§ 20) also exists", "BRL converted to EUR with rate date, nominal only", "the KB does NOT state the points criteria or the required proof of funds — the answer must say so instead of listing points from memory"]
+  probe: faithfulness
+  notes: your Opportunity Card question — partially covered on purpose (KB unchanged); a strong faithfulness probe because models know the points system well
+
+- id: Q19
+  question: "I am a nurse from the Philippines with a job offer of €42,000 in a German hospital. Is that enough for the EU Blue Card, and what recognition and language level do I need?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [recognition_of_qualifications.md, blue_card.md, residence_permits_overview.md]
+  expected_section: "Regulated professions in healthcare / Salary thresholds / Main titles"
+  expected_tools: [search_knowledge_base, check_blue_card_salary]
+  forbidden_tools: [convert_currency]
+  expected_args:
+    check_blue_card_salary: {gross_annual_salary_eur: 42000}
+  expected_facts: ["EUR 42,000 meets neither threshold (general 50,700 / reduced 45,934.20)", "nurses need recognition by the state authority and German at B2", "alternative: § 18a permit for recognised vocational qualifications (from the KB)"]
+  probe: faithfulness
+  notes: the KB does not describe the Anerkennungspartnerschaft or the exact recognition procedure for nurses — tempting details
+
+- id: Q20
+  question: "I am 27 and from Turkey and start my studies in October. Roughly how much does statutory student health insurance cost per month in 2026, until what age can I have it, and would the 6,000 Turkish lira my parents can send each month cover it?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [students_health_insurance.md]
+  expected_section: "Statutory student insurance (KVdS) / After 30"
+  expected_tools: [search_knowledge_base, convert_currency]
+  forbidden_tools: [estimate_net_salary]
+  expected_args:
+    convert_currency: {amount: 6000, from_currency: "TRY", period: "monthly"}
+  expected_facts: ["roughly EUR 130–150 per month incl. care insurance (10.22 % of EUR 855 + Zusatzbeitrag + care 4.2 % for childless ≥ 23)", "until the end of the semester in which you turn 30; the 14-semester limit no longer applies", "TRY converted with rate date; comparison with the premium; nominal only"]
+  probe: faithfulness
+  notes: numbers-heavy passage; the 14-semester rule was abolished — an unsourced model may still mention it as a limit
+
+- id: Q22
+  question: "I will start studying in Germany in 2027 and have 90,000 Chinese yuan saved. Is that enough for the blocked account for one year, and how does the blocked account actually work?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [students_blocked_account.md]
+  expected_section: "The required amount / Opening a blocked account"
+  expected_tools: [search_knowledge_base, convert_currency]
+  forbidden_tools: [estimate_net_salary, check_blue_card_salary]
+  expected_args:
+    convert_currency: {amount: 90000, from_currency: "CNY"}
+  expected_facts: ["required EUR 992 per month = EUR 11,904 per year (2026 figure; may change for 2027 — say so)", "CNY amount converted at the current rate with date; compared with EUR 11,904 plus a buffer for fees", "provider opens the account, Sperrbestätigung for the visa, EUR 992 paid out monthly after arrival"]
+  probe: faithfulness
+  notes: your blocked-account-from-home-currency question; the 2027 amount is unknown and must not be invented
+
+- id: Q24
+  question: "My current gross salary is 22 lakh INR per year. Is a €52,000 offer in Germany enough for the Blue Card, and what would I take home?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [blue_card.md]
+  expected_section: "Salary thresholds"
+  expected_tools: [search_knowledge_base, convert_currency, check_blue_card_salary, estimate_net_salary]
+  forbidden_tools: []
+  expected_args:
+    convert_currency: {amount: 2200000, from_currency: "INR", period: "annual", gross_or_net: "gross"}
+    check_blue_card_salary: {gross_annual_salary_eur: 52000}
+    estimate_net_salary: {gross_annual_eur: 52000}
+  expected_facts: ["nominal conversion only — not cost of living; no deductions applied to the INR salary", "general threshold EUR 50,700 met", "German net estimate from the tool", "no 'you will save X' claim"]
+  notes: your manual Q1 as a four-tool chain; gross_or_net must be 'gross' because the user said so
+
+- id: Q25
+  question: "I am moving to Munich for a €70,000 job and I am Catholic. What church tax rate applies in Bavaria, how is church tax collected, and what would my monthly net be in tax class 1?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [tax_id_and_tax_classes.md]
+  expected_section: "Church tax (Kirchensteuer)"
+  expected_tools: [search_knowledge_base, estimate_net_salary]
+  forbidden_tools: [check_blue_card_salary, convert_currency]
+  expected_args:
+    estimate_net_salary: {gross_annual_eur: 70000, tax_class: 1, church_member: true}
+  expected_facts: ["8 % of income tax in Bavaria and Baden-Württemberg (9 % elsewhere)", "declared at the Anmeldung, withheld via payroll; leaving the church is done at the Standesamt/Amtsgericht for a fee", "net ≈ EUR 3,466 per month with church tax (from the tool)"]
+  notes: tests that church_member=true and the Bavarian state are passed to the calculator
+
+- id: Q26
+  question: "I arrive on 25 October 2026 with travel insurance only and start work on 1 November 2026. Is travel insurance acceptable for the residence permit, when must my proper health insurance start, and what do I have to give my employer on day one?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [health_insurance.md, checklists.md, tax_id_and_tax_classes.md]
+  expected_section: "Coverage gap on arrival / Documents and steps after arrival / Timeline for the first weeks"
+  expected_tools: [search_knowledge_base, calculate_deadline]
+  forbidden_tools: [estimate_net_salary, check_blue_card_salary, convert_currency]
+  expected_args:
+    calculate_deadline: {event: "job_start", event_date: "2026-11-01"}
+  expected_facts: ["travel/incoming insurance covers only the first weeks and is not accepted for the residence permit", "statutory or full private cover must start on the first day of employment", "employer needs Steuer-ID and Krankenkasse details by the first payroll (job_start rule from the tool)"]
+  notes: health-insurance document plus the job_start deadline rule
+
+- id: Q31
+  question: "Two banks have refused to open an account for me because I have no SCHUFA history yet, and I want to bring my savings of 15,000 US dollars to Germany. Do I have a right to an account, what is SCHUFA, and how much is that in euros?"
+  language: en
+  group: mixed
+  covered: true
+  coverage_check: true
+  expected_docs: [bank_account_schufa.md]
+  expected_section: "Right to a basic account (Basiskonto) / SCHUFA"
+  expected_tools: [search_knowledge_base, convert_currency]
+  forbidden_tools: [estimate_net_salary, check_blue_card_salary]
+  expected_args:
+    convert_currency: {amount: 15000, from_currency: "USD"}
+  expected_facts: ["right to a Basiskonto under the Zahlungskontengesetz (ZKG) — a bank may not refuse because of SCHUFA; deposits, transfers, direct debits, no overdraft", "SCHUFA = credit reference agency; no history is normal for a newcomer, not a bad score; one free data copy per year", "USD converted with rate date, nominal, banks add a spread"]
+  probe: faithfulness
+  notes: added on review so the banking document is exercised; numbered Q31 to keep the not-covered IDs stable. Tempting unsourced details are the exact ZKG paragraph and bank-specific policies
+
+# ───────────────────────────── not covered by the knowledge base (3) ─────────────────────────────
+
+- id: Q27
+  question: "How much Kindergeld will I receive for two children, and where do I apply?"
+  language: en
+  group: not_covered
+  covered: false
+  coverage_check: true
+  expected_docs: []
+  expected_section: ""
+  expected_tools: [search_knowledge_base]
+  forbidden_tools: [estimate_net_salary, convert_currency]
+  expected_facts: ["says the knowledge base does not cover Kindergeld", "no citations", "points to the Familienkasse / Bundesagentur für Arbeit as the authority (general orientation, labelled as such)"]
+  notes: clearly absent topic; correct behaviour = weak-coverage notice, no [Sn] citations, no invented amount
+
+- id: Q28
+  question: "What are the requirements for German citizenship (Einbürgerung) and how many years do I need to have lived here?"
+  language: en
+  group: not_covered
+  covered: false
+  coverage_check: true
+  expected_docs: []
+  expected_section: ""
+  expected_tools: [search_knowledge_base]
+  forbidden_tools: []
+  expected_facts: ["says the knowledge base does not cover naturalisation", "no citations", "no invented year count"]
+  notes: adjacent to residence permits (Niederlassungserlaubnis passages will be retrieved) — tests that adjacent ≠ covered
+
+- id: Q30
+  question: "How much is the Rundfunkbeitrag per month and who has to pay it?"
+  language: en
+  group: not_covered
+  covered: false
+  coverage_check: true
+  expected_docs: []
+  expected_section: ""
+  expected_tools: [search_knowledge_base]
+  forbidden_tools: []
+  difficulty: hard
+  expected_facts: ["the KB only mentions the Rundfunkbeitrag in passing (Abmeldung ends it) — it does NOT state the amount", "either the weak-coverage notice OR an explicit 'the knowledge base does not state the amount'", "no invented figure"]
+  notes: hard case — the term appears in three documents, so the keyword signal will likely mark it 'covered'; the grounding rule / faithfulness judge must then catch any invented amount. Reported separately.

@@ -1,0 +1,22 @@
+# EU Blue Card minimum gross annual salary thresholds (Germany), § 18g AufenthG.
+# The general threshold is 50 % and the reduced threshold 45.3 % of the annual
+# contribution assessment ceiling of the statutory pension insurance (BBG RV).
+# Source: Bundesagentur für Arbeit / BMI announcements. Verify each year.
+legal_basis: "§ 18g Aufenthaltsgesetz (AufenthG)"
+years:
+  2024:
+    general: 45300.00
+    reduced: 41041.80
+  2025:
+    general: 48300.00
+    reduced: 43759.80
+  2026:
+    general: 50700.00
+    reduced: 45934.20
+notes:
+  general: "Applies to all regulated and non-regulated occupations with a recognised university degree."
+  reduced: >
+    Applies to (a) shortage occupations (e.g. STEM, medicine, IT, teaching, nursing, engineering),
+    (b) graduates whose degree is no more than three years old, and (c) IT specialists without a
+    degree who have at least three years of comparable professional experience in the last seven years.
+    Approval of the Federal Employment Agency (Bundesagentur für Arbeit) is required.

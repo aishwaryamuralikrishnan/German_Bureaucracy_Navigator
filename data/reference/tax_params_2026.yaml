@@ -1,0 +1,46 @@
+# German income tax and social insurance parameters for 2026.
+# Used ONLY by the net-salary estimator. This is an estimate, not payroll software.
+year: 2026
+
+income_tax:
+  # § 32a EStG tariff (basic table). Zones by taxable income (zvE) in EUR.
+  basic_allowance: 12348            # Grundfreibetrag
+  zone2_upper: 17799
+  zone3_upper: 69878
+  zone4_upper: 277825
+  zone2: {a: 914.51, b: 1400.0}                 # (a*y + b) * y, y = (zvE - 12348) / 10000
+  zone3: {a: 173.10, b: 2397.0, c: 1034.87}     # (a*z + b) * z + c, z = (zvE - 17799) / 10000
+  zone4: {rate: 0.42, minus: 11135.63}
+  zone5: {rate: 0.45, minus: 19470.38}
+  employee_lump_sum: 1230           # Arbeitnehmer-Pauschbetrag (Werbungskosten)
+  special_expenses_lump_sum: 36     # Sonderausgaben-Pauschbetrag
+  single_parent_relief: 4260        # Entlastungsbetrag für Alleinerziehende (tax class II)
+  solidarity_surcharge:
+    rate: 0.055
+    exemption_single: 20350         # Freigrenze (basic table)
+    exemption_splitting: 40700
+    phase_in_rate: 0.119            # Milderungszone: 11.9 % of (tax - exemption)
+
+social_insurance:
+  health:
+    general_rate: 0.146             # split 50/50
+    average_additional_rate: 0.029  # durchschnittlicher Zusatzbeitrag, split 50/50
+    ceiling_annual: 69750
+  care:
+    total_rate: 0.036               # employee share 1.8 % (with >= 1 child)
+    childless_surcharge_employee: 0.006
+    saxony_employee_extra: 0.005    # Saxony: employee pays 0.5 pp more
+    ceiling_annual: 69750
+  pension:
+    total_rate: 0.186
+    ceiling_annual: 101400
+  unemployment:
+    total_rate: 0.026
+    ceiling_annual: 101400
+
+church_tax:
+  # Kirchensteuer as % of income tax, by federal state
+  rate_by_state:
+    Bayern: 0.08
+    Baden-Württemberg: 0.08
+    default: 0.09

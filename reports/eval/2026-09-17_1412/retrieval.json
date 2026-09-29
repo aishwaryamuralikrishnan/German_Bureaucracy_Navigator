@@ -1,0 +1,1062 @@
+{
+  "k": 5,
+  "seconds": 66.7,
+  "reranker": "openrouter:cohere/rerank-4-fast",
+  "embedding_model": "openai/text-embedding-3-small",
+  "configs": [
+    {
+      "config": "dense",
+      "label": "dense only",
+      "questions": 20,
+      "hits": 19,
+      "hit_rate": 0.95,
+      "mrr": 0.8542
+    },
+    {
+      "config": "bm25",
+      "label": "BM25 only",
+      "questions": 20,
+      "hits": 19,
+      "hit_rate": 0.95,
+      "mrr": 0.9
+    },
+    {
+      "config": "hybrid",
+      "label": "hybrid (RRF)",
+      "questions": 20,
+      "hits": 20,
+      "hit_rate": 1.0,
+      "mrr": 0.8542
+    },
+    {
+      "config": "hybrid_rerank",
+      "label": "hybrid + reranker",
+      "questions": 20,
+      "hits": 20,
+      "hit_rate": 1.0,
+      "mrr": 0.975
+    }
+  ],
+  "per_question": [
+    {
+      "id": "Q01",
+      "group": "knowledge",
+      "expected_docs": [
+        "students_working.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "students_working.md",
+          "students_working.md",
+          "students_working.md",
+          "students_working.md",
+          "students_working.md"
+        ],
+        "bm25": [
+          "students_working.md",
+          "students_working.md",
+          "students_working.md",
+          "students_health_insurance.md",
+          "student_visa_and_national_visa.md"
+        ],
+        "hybrid": [
+          "students_working.md",
+          "students_working.md",
+          "students_working.md",
+          "students_working.md",
+          "students_working.md"
+        ],
+        "hybrid_rerank": [
+          "students_working.md",
+          "students_working.md",
+          "students_working.md",
+          "students_working.md",
+          "students_working.md"
+        ]
+      },
+      "variants": [
+        "I am a non-EU master's student working as a Werkstudent for €1,400 a month during the semester break. How many days per year may I work, do HiWi jobs count, and will I pay income tax on this?",
+        "Werkstudentenregelung Deutschland",
+        "non-EU student work regulations Germany",
+        "§ 21 AufenthG"
+      ],
+      "seconds": 5.15
+    },
+    {
+      "id": "Q02",
+      "group": "knowledge",
+      "expected_docs": [
+        "students_blocked_account.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "residence_permits_overview.md",
+          "drivers_licence.md",
+          "anmeldung_de.md"
+        ],
+        "bm25": [
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "student_visa_and_national_visa.md",
+          "students_blocked_account.md",
+          "blue_card.md"
+        ],
+        "hybrid": [
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "student_visa_and_national_visa.md",
+          "students_blocked_account.md",
+          "residence_permits_overview.md"
+        ],
+        "hybrid_rerank": [
+          "students_blocked_account.md",
+          "student_visa_and_national_visa.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "anmeldung_de.md"
+        ]
+      },
+      "variants": [
+        "How long is a Verpflichtungserklärung valid, and for how long is the person who signed it liable for me?",
+        "Wie lange ist eine Verpflichtungserklärung gültig?",
+        "How long is a formal obligation letter valid?",
+        "Verpflichtungserklärung duration of liability"
+      ],
+      "seconds": 3.52
+    },
+    {
+      "id": "Q03",
+      "group": "tool_only",
+      "expected_docs": [
+        "tax_id_and_tax_classes.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "students_working.md",
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md"
+        ],
+        "bm25": [
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "anmeldung.md",
+          "anmeldung_rostock.md"
+        ],
+        "hybrid": [
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "students_working.md",
+          "tax_id_and_tax_classes.md"
+        ],
+        "hybrid_rerank": [
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "students_working.md",
+          "tax_id_and_tax_classes.md"
+        ]
+      },
+      "variants": [
+        "What is my net salary on €65,000 gross in Bayern, tax class 1, no church tax?",
+        "Nettogehalt bei 65000 Euro Bruttogehalt Steuerklasse 1 Bayern",
+        "net salary on €65,000 gross in Bavaria tax class 1",
+        "Lohnsteuerklasse 1 Berechnung"
+      ],
+      "seconds": 4.53
+    },
+    {
+      "id": "Q04",
+      "group": "mixed",
+      "expected_docs": [
+        "anmeldung_munich.md",
+        "anmeldung.md",
+        "checklists.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "anmeldung_munich.md",
+          "anmeldung.md",
+          "anmeldung_de.md",
+          "anmeldung.md",
+          "anmeldung_munich.md"
+        ],
+        "bm25": [
+          "anmeldung_munich.md",
+          "anmeldung_munich.md",
+          "anmeldung.md",
+          "anmeldung_munich.md",
+          "anmeldung.md"
+        ],
+        "hybrid": [
+          "anmeldung_munich.md",
+          "anmeldung.md",
+          "anmeldung_munich.md",
+          "anmeldung.md",
+          "anmeldung_munich.md"
+        ],
+        "hybrid_rerank": [
+          "anmeldung_munich.md",
+          "anmeldung_munich.md",
+          "anmeldung.md",
+          "anmeldung_de.md",
+          "anmeldung.md"
+        ]
+      },
+      "variants": [
+        "I moved into my flat in Munich on 20 December 2026. By when must I register, which office is responsible, what happens if I am late, and which documents do I need to bring?",
+        "Anmeldung Bürgeramt München Frist und benötigte Unterlagen",
+        "Address registration Munich deadline and required documents",
+        "§ 17 BMG Anmeldung (Bundesmeldegesetz)"
+      ],
+      "seconds": 2.68
+    },
+    {
+      "id": "Q05",
+      "group": "mixed",
+      "expected_docs": [
+        "anmeldung_rostock.md"
+      ],
+      "ranks": {
+        "dense": null,
+        "bm25": 1,
+        "hybrid": 2,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "anmeldung.md",
+          "anmeldung.md",
+          "anmeldung_de.md",
+          "anmeldung_berlin.md",
+          "anmeldung.md"
+        ],
+        "bm25": [
+          "anmeldung_rostock.md",
+          "anmeldung.md",
+          "anmeldung_de.md",
+          "anmeldung_rostock.md",
+          "anmeldung_rostock.md"
+        ],
+        "hybrid": [
+          "anmeldung.md",
+          "anmeldung_rostock.md",
+          "anmeldung_de.md",
+          "anmeldung_berlin.md",
+          "anmeldung.md"
+        ],
+        "hybrid_rerank": [
+          "anmeldung_rostock.md",
+          "anmeldung_de.md",
+          "anmeldung_de.md",
+          "anmeldung.md",
+          "anmeldung.md"
+        ]
+      },
+      "variants": [
+        "Ich bin am 1. September 2026 nach Rostock gezogen. Wo genau melde ich meine Wohnung an – ein Bürgeramt finde ich auf der Website der Stadt nicht – und bis wann muss ich das tun?",
+        "Anmeldung Bürgeramt Rostock Frist",
+        "Address registration citizens office Rostock deadline",
+        "§ 17 BMG Anmeldung"
+      ],
+      "seconds": 3.37
+    },
+    {
+      "id": "Q06",
+      "group": "mixed",
+      "expected_docs": [
+        "checklists.md",
+        "family_reunification.md",
+        "student_visa_and_national_visa.md",
+        "drivers_licence.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "family_reunification.md",
+          "family_reunification.md",
+          "family_reunification.md",
+          "family_reunification.md",
+          "checklists.md"
+        ],
+        "bm25": [
+          "family_reunification.md",
+          "family_reunification.md",
+          "family_reunification.md",
+          "family_reunification.md",
+          "family_reunification.md"
+        ],
+        "hybrid": [
+          "family_reunification.md",
+          "family_reunification.md",
+          "family_reunification.md",
+          "family_reunification.md",
+          "family_reunification.md"
+        ],
+        "hybrid_rerank": [
+          "checklists.md",
+          "family_reunification.md",
+          "family_reunification.md",
+          "checklists.md",
+          "student_visa_and_national_visa.md"
+        ]
+      },
+      "variants": [
+        "I arrive in Berlin on 10 October 2026 on a family-reunification (spouse) visa that is valid until 8 January 2027, and I have an Indian driving licence. What should I do in the first weeks, by when must I apply for the residence permit, and am I allowed to work?",
+        "Familiennachzug Visum Berlin",
+        "family reunification visa Berlin",
+        "Aufenthaltserlaubnis beantragen nach Familiennachzug"
+      ],
+      "seconds": 2.66
+    },
+    {
+      "id": "Q07",
+      "group": "mixed",
+      "expected_docs": [
+        "residence_permits_overview.md",
+        "checklists.md",
+        "students_blocked_account.md",
+        "student_visa_and_national_visa.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "students_blocked_account.md",
+          "students_working.md",
+          "student_visa_and_national_visa.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md"
+        ],
+        "bm25": [
+          "student_visa_and_national_visa.md",
+          "students_blocked_account.md",
+          "student_visa_and_national_visa.md",
+          "students_blocked_account.md",
+          "student_visa_and_national_visa.md"
+        ],
+        "hybrid": [
+          "student_visa_and_national_visa.md",
+          "students_blocked_account.md",
+          "student_visa_and_national_visa.md",
+          "students_blocked_account.md",
+          "student_visa_and_national_visa.md"
+        ],
+        "hybrid_rerank": [
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "student_visa_and_national_visa.md",
+          "students_blocked_account.md",
+          "checklists.md"
+        ]
+      },
+      "variants": [
+        "My student residence permit expires on 31 March 2027. What is the procedure to extend it, which documents do I need, by when should I apply, and is the 8,000 US dollars currently in my blocked account enough?",
+        "Aufenthaltserlaubnis verlängern Studenten Unterlagen Frist",
+        "How to extend student residence permit in Germany documents deadline",
+        "§ 16 AufenthG"
+      ],
+      "seconds": 3.59
+    },
+    {
+      "id": "Q08",
+      "group": "mixed",
+      "expected_docs": [
+        "student_visa_and_national_visa.md",
+        "blue_card.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "student_visa_and_national_visa.md",
+          "student_visa_and_national_visa.md",
+          "residence_permits_overview.md",
+          "student_visa_and_national_visa.md",
+          "student_visa_and_national_visa.md"
+        ],
+        "bm25": [
+          "student_visa_and_national_visa.md",
+          "student_visa_and_national_visa.md",
+          "blue_card.md",
+          "residence_permits_overview.md",
+          "student_visa_and_national_visa.md"
+        ],
+        "hybrid": [
+          "student_visa_and_national_visa.md",
+          "student_visa_and_national_visa.md",
+          "student_visa_and_national_visa.md",
+          "residence_permits_overview.md",
+          "residence_permits_overview.md"
+        ],
+        "hybrid_rerank": [
+          "student_visa_and_national_visa.md",
+          "student_visa_and_national_visa.md",
+          "residence_permits_overview.md",
+          "blue_card.md",
+          "blue_card.md"
+        ]
+      },
+      "variants": [
+        "I graduate from TU Berlin in September 2026 and have a job offer of €46,000 as a software developer. What happens to my student residence permit after graduation, and do I qualify for the EU Blue Card as a recent graduate?",
+        "Aufenthaltserlaubnis nach Studienabschluss und Blaue Karte EU",
+        "What happens to my student residence permit after graduation in Germany?",
+        "§ 18b AufenthG"
+      ],
+      "seconds": 3.41
+    },
+    {
+      "id": "Q11",
+      "group": "mixed",
+      "expected_docs": [
+        "residence_permits_overview.md",
+        "blue_card.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md"
+        ],
+        "bm25": [
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md"
+        ],
+        "hybrid": [
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md"
+        ],
+        "hybrid_rerank": [
+          "residence_permits_overview.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md"
+        ]
+      },
+      "variants": [
+        "My EU Blue Card expires on 15 January 2027 and my salary is €50,000. By when should I apply for the extension, and does my salary still meet the threshold?",
+        "Blaue Karte EU Verlängerung Frist",
+        "EU Blue Card extension deadline and salary threshold",
+        "§ 18b AufenthG"
+      ],
+      "seconds": 3.46
+    },
+    {
+      "id": "Q12",
+      "group": "mixed",
+      "expected_docs": [
+        "tax_id_and_tax_classes.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": null,
+        "hybrid": 4,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md"
+        ],
+        "bm25": [
+          "anmeldung_berlin.md",
+          "anmeldung_berlin.md",
+          "anmeldung_berlin.md",
+          "anmeldung_berlin.md",
+          "student_visa_and_national_visa.md"
+        ],
+        "hybrid": [
+          "anmeldung_berlin.md",
+          "anmeldung_berlin.md",
+          "anmeldung_rostock.md",
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md"
+        ],
+        "hybrid_rerank": [
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md"
+        ]
+      },
+      "variants": [
+        "Wir sind verheiratet und wohnen in Berlin. Ich verdiene 60.000 € brutto, meine Frau 20.000 €. Sollten wir Steuerklasse 3/5 oder 4/4 wählen, wer darf wechseln, und was wäre mein monatliches Netto in Steuerklasse 3?",
+        "Steuerklasse 3/5 oder 4/4 Wahl Berlin",
+        "tax class 3/5 or 4/4 choice Berlin",
+        "Lohnsteuerklasse Wechsel"
+      ],
+      "seconds": 2.77
+    },
+    {
+      "id": "Q13",
+      "group": "mixed",
+      "expected_docs": [
+        "health_insurance.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "health_insurance.md",
+          "health_insurance.md",
+          "health_insurance.md",
+          "health_insurance.md",
+          "health_insurance.md"
+        ],
+        "bm25": [
+          "health_insurance.md",
+          "health_insurance.md",
+          "health_insurance.md",
+          "health_insurance.md",
+          "health_insurance.md"
+        ],
+        "hybrid": [
+          "health_insurance.md",
+          "health_insurance.md",
+          "health_insurance.md",
+          "health_insurance.md",
+          "health_insurance.md"
+        ],
+        "hybrid_rerank": [
+          "health_insurance.md",
+          "health_insurance.md",
+          "health_insurance.md",
+          "students_health_insurance.md",
+          "health_insurance.md"
+        ]
+      },
+      "variants": [
+        "Ich verdiene 82.000 € brutto in Hamburg, Steuerklasse 1, keine Kirchensteuer. Darf ich in die private Krankenversicherung wechseln, was wäre mein Netto in der gesetzlichen, und kann ich später wieder zurück in die GKV?",
+        "private Krankenversicherung wechseln Steuerklasse 1",
+        "switch to private health insurance Germany income 82000",
+        "§ 193 SGB V Rückkehr in die GKV"
+      ],
+      "seconds": 2.77
+    },
+    {
+      "id": "Q16",
+      "group": "mixed",
+      "expected_docs": [
+        "family_reunification.md",
+        "checklists.md"
+      ],
+      "ranks": {
+        "dense": 2,
+        "bm25": 2,
+        "hybrid": 2,
+        "hybrid_rerank": 2
+      },
+      "top_docs": {
+        "dense": [
+          "blue_card.md",
+          "family_reunification.md",
+          "blue_card.md",
+          "family_reunification.md",
+          "family_reunification.md"
+        ],
+        "bm25": [
+          "blue_card.md",
+          "family_reunification.md",
+          "family_reunification.md",
+          "blue_card.md",
+          "blue_card.md"
+        ],
+        "hybrid": [
+          "blue_card.md",
+          "family_reunification.md",
+          "family_reunification.md",
+          "blue_card.md",
+          "family_reunification.md"
+        ],
+        "hybrid_rerank": [
+          "blue_card.md",
+          "family_reunification.md",
+          "blue_card.md",
+          "residence_permits_overview.md",
+          "blue_card.md"
+        ]
+      },
+      "variants": [
+        "I hold an EU Blue Card with a salary of €58,000 and my wife wants to join me. Does she need to pass a German language test before coming, what are the other requirements, and is my income sufficient?",
+        "Familiennachzug EU Blaue Karte Anforderungen",
+        "EU Blue Card family reunification requirements",
+        "§ 28 AufenthG Familiennachzug"
+      ],
+      "seconds": 2.52
+    },
+    {
+      "id": "Q18",
+      "group": "mixed",
+      "expected_docs": [
+        "residence_permits_overview.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "residence_permits_overview.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "residence_permits_overview.md"
+        ],
+        "bm25": [
+          "residence_permits_overview.md",
+          "blue_card.md",
+          "blue_card.md",
+          "student_visa_and_national_visa.md",
+          "student_visa_and_national_visa.md"
+        ],
+        "hybrid": [
+          "residence_permits_overview.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md"
+        ],
+        "hybrid_rerank": [
+          "residence_permits_overview.md",
+          "student_visa_and_national_visa.md",
+          "residence_permits_overview.md",
+          "blue_card.md",
+          "blue_card.md"
+        ]
+      },
+      "variants": [
+        "I am a mechanical engineer from Brazil without a job offer. Can I come to Germany to look for work with the Opportunity Card, how long could I stay, and would my savings of 40,000 Brazilian reais be enough to live on?",
+        "Opportunity Card Deutschland",
+        "Can I come to Germany to look for work with the Opportunity Card?",
+        "§ 18g AufenthG"
+      ],
+      "seconds": 2.56
+    },
+    {
+      "id": "Q19",
+      "group": "mixed",
+      "expected_docs": [
+        "recognition_of_qualifications.md",
+        "blue_card.md",
+        "residence_permits_overview.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md"
+        ],
+        "bm25": [
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md"
+        ],
+        "hybrid": [
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md"
+        ],
+        "hybrid_rerank": [
+          "recognition_of_qualifications.md",
+          "blue_card.md",
+          "residence_permits_overview.md",
+          "blue_card.md",
+          "blue_card.md"
+        ]
+      },
+      "variants": [
+        "I am a nurse from the Philippines with a job offer of €42,000 in a German hospital. Is that enough for the EU Blue Card, and what recognition and language level do I need?",
+        "Blaue Karte EU Anforderungen Anerkennung Sprachkenntnisse",
+        "EU Blue Card requirements recognition language skills",
+        "§ 18b AufenthG"
+      ],
+      "seconds": 3.25
+    },
+    {
+      "id": "Q20",
+      "group": "mixed",
+      "expected_docs": [
+        "students_health_insurance.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "students_health_insurance.md",
+          "students_health_insurance.md",
+          "students_health_insurance.md",
+          "students_health_insurance.md",
+          "students_health_insurance.md"
+        ],
+        "bm25": [
+          "students_health_insurance.md",
+          "students_health_insurance.md",
+          "health_insurance.md",
+          "students_health_insurance.md",
+          "health_insurance.md"
+        ],
+        "hybrid": [
+          "students_health_insurance.md",
+          "students_health_insurance.md",
+          "students_health_insurance.md",
+          "health_insurance.md",
+          "students_health_insurance.md"
+        ],
+        "hybrid_rerank": [
+          "students_health_insurance.md",
+          "students_health_insurance.md",
+          "students_health_insurance.md",
+          "students_health_insurance.md",
+          "students_blocked_account.md"
+        ]
+      },
+      "variants": [
+        "I am 27 and from Turkey and start my studies in October. Roughly how much does statutory student health insurance cost per month in 2026, until what age can I have it, and would the 6,000 Turkish lira my parents can send each month cover it?",
+        "Wie viel kostet die gesetzliche Krankenversicherung der Studenten (KVdS) pro Monat 2026?",
+        "What is the monthly cost of statutory student health insurance in 2026?",
+        "gesetzliche Krankenversicherung der Studenten (KVdS) Kosten 2026"
+      ],
+      "seconds": 3.6
+    },
+    {
+      "id": "Q22",
+      "group": "mixed",
+      "expected_docs": [
+        "students_blocked_account.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md"
+        ],
+        "bm25": [
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md"
+        ],
+        "hybrid": [
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md"
+        ],
+        "hybrid_rerank": [
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md"
+        ]
+      },
+      "variants": [
+        "I will start studying in Germany in 2027 and have 90,000 Chinese yuan saved. Is that enough for the blocked account for one year, and how does the blocked account actually work?",
+        "Sperrkonto Anforderungen 2027",
+        "blocked account requirements for students in Germany",
+        "Finanzierungsnachweis für Studierende"
+      ],
+      "seconds": 2.72
+    },
+    {
+      "id": "Q24",
+      "group": "mixed",
+      "expected_docs": [
+        "blue_card.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md"
+        ],
+        "bm25": [
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md"
+        ],
+        "hybrid": [
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md"
+        ],
+        "hybrid_rerank": [
+          "blue_card.md",
+          "blue_card.md",
+          "blue_card.md",
+          "checklists.md",
+          "residence_permits_overview.md"
+        ]
+      },
+      "variants": [
+        "My current gross salary is 22 lakh INR per year. Is a €52,000 offer in Germany enough for the Blue Card, and what would I take home?",
+        "Blaue Karte EU Gehalt 52000 Euro",
+        "EU Blue Card salary requirements 52000 Euro",
+        "§ 18b AufenthG"
+      ],
+      "seconds": 3.69
+    },
+    {
+      "id": "Q25",
+      "group": "mixed",
+      "expected_docs": [
+        "tax_id_and_tax_classes.md"
+      ],
+      "ranks": {
+        "dense": 1,
+        "bm25": 1,
+        "hybrid": 1,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "anmeldung.md",
+          "tax_id_and_tax_classes.md"
+        ],
+        "bm25": [
+          "tax_id_and_tax_classes.md",
+          "anmeldung.md",
+          "anmeldung.md",
+          "students_working.md",
+          "tax_id_and_tax_classes.md"
+        ],
+        "hybrid": [
+          "tax_id_and_tax_classes.md",
+          "anmeldung.md",
+          "tax_id_and_tax_classes.md",
+          "anmeldung.md",
+          "tax_id_and_tax_classes.md"
+        ],
+        "hybrid_rerank": [
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "tax_id_and_tax_classes.md",
+          "anmeldung.md",
+          "anmeldung.md"
+        ]
+      },
+      "variants": [
+        "I am moving to Munich for a €70,000 job and I am Catholic. What church tax rate applies in Bavaria, how is church tax collected, and what would my monthly net be in tax class 1?",
+        "Kirchensteuer Bayern Steuersatz",
+        "church tax rate Bavaria",
+        "Steuerklasse 1 Nettogehalt Berechnung"
+      ],
+      "seconds": 2.82
+    },
+    {
+      "id": "Q26",
+      "group": "mixed",
+      "expected_docs": [
+        "health_insurance.md",
+        "checklists.md",
+        "tax_id_and_tax_classes.md"
+      ],
+      "ranks": {
+        "dense": 3,
+        "bm25": 2,
+        "hybrid": 3,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "student_visa_and_national_visa.md",
+          "student_visa_and_national_visa.md",
+          "health_insurance.md",
+          "students_health_insurance.md",
+          "health_insurance.md"
+        ],
+        "bm25": [
+          "student_visa_and_national_visa.md",
+          "health_insurance.md",
+          "students_health_insurance.md",
+          "anmeldung_rostock.md",
+          "health_insurance.md"
+        ],
+        "hybrid": [
+          "student_visa_and_national_visa.md",
+          "student_visa_and_national_visa.md",
+          "health_insurance.md",
+          "students_health_insurance.md",
+          "student_visa_and_national_visa.md"
+        ],
+        "hybrid_rerank": [
+          "health_insurance.md",
+          "students_health_insurance.md",
+          "student_visa_and_national_visa.md",
+          "checklists.md",
+          "health_insurance.md"
+        ]
+      },
+      "variants": [
+        "I arrive on 25 October 2026 with travel insurance only and start work on 1 November 2026. Is travel insurance acceptable for the residence permit, when must my proper health insurance start, and what do I have to give my employer on day one?",
+        "Aufenthaltserlaubnis mit Reisekrankenversicherung akzeptabel?",
+        "Is travel insurance acceptable for residence permit in Germany?",
+        "§ 18 AufenthG - Voraussetzungen für die Erteilung einer Aufenthaltserlaubnis"
+      ],
+      "seconds": 3.93
+    },
+    {
+      "id": "Q31",
+      "group": "mixed",
+      "expected_docs": [
+        "bank_account_schufa.md"
+      ],
+      "ranks": {
+        "dense": 4,
+        "bm25": 1,
+        "hybrid": 2,
+        "hybrid_rerank": 1
+      },
+      "top_docs": {
+        "dense": [
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "students_working.md",
+          "bank_account_schufa.md",
+          "bank_account_schufa.md"
+        ],
+        "bm25": [
+          "bank_account_schufa.md",
+          "bank_account_schufa.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md",
+          "bank_account_schufa.md"
+        ],
+        "hybrid": [
+          "students_blocked_account.md",
+          "bank_account_schufa.md",
+          "bank_account_schufa.md",
+          "students_blocked_account.md",
+          "students_blocked_account.md"
+        ],
+        "hybrid_rerank": [
+          "bank_account_schufa.md",
+          "bank_account_schufa.md",
+          "bank_account_schufa.md",
+          "bank_account_schufa.md",
+          "bank_account_schufa.md"
+        ]
+      },
+      "variants": [
+        "Two banks have refused to open an account for me because I have no SCHUFA history yet, and I want to bring my savings of 15,000 US dollars to Germany. Do I have a right to an account, what is SCHUFA, and how much is that in euros?",
+        "Basiskonto Recht auf ein Konto in Deutschland",
+        "basic bank account rights in Germany",
+        "15,000 USD to EUR conversion"
+      ],
+      "seconds": 3.68
+    }
+  ],
+  "skipped": [
+    "Q27",
+    "Q28",
+    "Q30"
+  ]
+}

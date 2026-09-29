@@ -1,0 +1,26 @@
+# Streamlit theme for the German Bureaucracy Navigator ("Amtsblau": federal blue on warm paper).
+# Project-level config: overrides ~/.streamlit/config.toml. Colours that appear in custom HTML are mirrored
+# in ui/theme.py — keep the two in sync.
+
+[theme]
+base = "light"
+primaryColor = "#1f4e8c"             # buttons, active radio/select, links, focus rings, chat avatar ring
+backgroundColor = "#f8f7f3"          # warm off-white page
+secondaryBackgroundColor = "#eef2f7" # inputs, status boxes, user chat bubbles, code blocks
+textColor = "#1c1c1c"
+linkColor = "#1f4e8c"
+linkUnderline = false
+borderColor = "#d9dde3"
+dataframeBorderColor = "#d9dde3"
+dataframeHeaderBackgroundColor = "#eef2f7"
+codeBackgroundColor = "#eef2f7"
+baseRadius = "0.5rem"
+buttonRadius = "0.5rem"
+showWidgetBorder = true
+showSidebarBorder = true
+chartCategoricalColors = ["#1f4e8c", "#eb6834", "#1baf7a", "#eda100", "#7a3fbf", "#52514e"]
+
+[theme.sidebar]
+backgroundColor = "#eef2f7"          # pale blue-grey panel
+secondaryBackgroundColor = "#ffffff" # widgets inside the sidebar stay white
+borderColor = "#d0d7e1"

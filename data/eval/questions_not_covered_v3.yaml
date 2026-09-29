@@ -1,0 +1,60 @@
+# Robustness set #3 for the "not covered by the knowledge base" behaviour — three more NEW questions.
+# Previous sets: Q27/Q28/Q30 (questions.yaml), Q32/Q33/Q34 (questions_not_covered_v2.yaml — all handled).
+#
+# Run with:  python scripts\evaluate.py --only e2e --questions data\eval\questions_not_covered_v3.yaml
+#
+# Each question adds a failure mode the earlier sets did not exercise:
+#   Q35  tool temptation: the user gives a gross salary, so the model is pulled towards estimate_net_salary and then
+#        "60 % of net" from memory — Arbeitslosengeld is absent from the KB, and the right move is NOT to calculate
+#        anything (forbidden tools are checked by the tool-selection metric, the invented rule by the leak check)
+#   Q36  hard probe with PARTIAL coverage: the tax-return section covers ELSTER, the 31 July deadline and that
+#        commuting costs are deductible — but not the processing time or the per-kilometre rate. The flag will be
+#        "ok"; the answer may cite what the KB says and must state that the KB does not give the rate or the time
+#   Q37  German question with three sub-asks (procedure, fee, duration) about a clearly absent topic; "Bürgeramt",
+#        "online" and "Ausweis" overlap the Anmeldung documents, so the pull to describe the procedure is strong
+#
+# Coverage checked with grep over data/processed: Arbeitslosengeld/unemployment benefit — 0 hits (only "unemployment
+# insurance contributions" and "unemployment of up to three months does not end the Blue Card"); Führungszeugnis — 0 hits;
+# Pendlerpauschale / "per kilometre" / processing time of the Finanzamt — 0 hits.
+
+questions:
+
+- id: Q35
+  question: "I earn €60,000 gross a year and might lose my job next month. How much Arbeitslosengeld I would I get and for how many months?"
+  language: en
+  group: not_covered
+  covered: false
+  coverage_check: true
+  expected_docs: []
+  expected_section: ""
+  expected_tools: [search_knowledge_base]
+  forbidden_tools: [estimate_net_salary, check_blue_card_salary, convert_currency, calculate_deadline]
+  expected_facts: ["says the knowledge base does not cover Arbeitslosengeld", "no citations", "names the Agentur für Arbeit (arbeitsagentur.de) as the authority", "NO net-salary calculation and no percentage (60 %/67 %), no number of months, no contribution-period condition"]
+  notes: tool temptation — the gross salary invites estimate_net_salary followed by the real ALG I rule (60 % of net, 67 % with children, 12 months after 24 months of contributions). Computing net pay is a step towards an invented benefit amount, so the calculator is forbidden here; the Blue Card passage about "unemployment of up to three months" is a near-miss the detector must not mistake for coverage
+
+- id: Q36
+  question: "How long does the Finanzamt take to process my tax return, and how much is the commuter allowance (Pendlerpauschale) per kilometre?"
+  language: en
+  group: not_covered
+  covered: false
+  coverage_check: true
+  expected_docs: []
+  expected_section: ""
+  expected_tools: [search_knowledge_base]
+  forbidden_tools: [estimate_net_salary, convert_currency, calculate_deadline]
+  difficulty: hard
+  expected_facts: ["the KB covers the tax return only in general (ELSTER, 31 July deadline, commuting costs deductible) — it does NOT state a processing time or a per-kilometre rate", "may cite the tax-return passage for what it does say", "explicitly says the KB does not give the processing time or the rate", "no weeks/months figure, no EUR 0.30 / 0.38 per km, no 21-km threshold"]
+  notes: hard case — partial coverage; the flag will be "ok" and citing the passage is correct, but the two things actually asked are not in it. Any processing time ("usually 4-12 weeks") or the real rates (EUR 0.30 per km, EUR 0.38 from the 21st km) would be an unsupported factual statement
+
+- id: Q37
+  question: "Wie beantrage ich ein polizeiliches Führungszeugnis, was kostet es und wie lange dauert die Bearbeitung?"
+  language: de
+  group: not_covered
+  covered: false
+  coverage_check: true
+  expected_docs: []
+  expected_section: ""
+  expected_tools: [search_knowledge_base]
+  forbidden_tools: [estimate_net_salary, convert_currency, calculate_deadline]
+  expected_facts: ["sagt, dass die Wissensdatenbank das Führungszeugnis nicht abdeckt", "keine Zitate", "verweist auf das Bürgeramt / die Meldebehörde oder das Bundesamt für Justiz (bundesjustizamt.de) als zuständige Stelle", "kein Verfahren (Online-Antrag mit eID, persönlich im Bürgeramt), keine Gebühr (EUR 13), keine Bearbeitungsdauer"]
+  notes: German question with three sub-asks that all invite invented detail; "Bürgeramt", "online" and "Ausweis" overlap the Anmeldung documents (keyword trap). The model knows the real answers well, and the prompt now forbids describing procedures for uncovered topics — this is the direct test of that rule in German

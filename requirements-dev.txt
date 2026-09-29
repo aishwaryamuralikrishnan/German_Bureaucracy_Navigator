@@ -1,0 +1,17 @@
+# Everything in requirements.txt plus what is needed to run the evaluation, fetch sources, test and lint.
+-r requirements.txt
+
+# --- Evaluation harness (scripts/evaluate.py) ------------------------------
+ragas>=0.4.3            # faithfulness metric; pulls in langchain-community automatically
+datasets>=4.0           # RAGAS dependency
+
+# --- Knowledge-base fetching (scripts/fetch_sources.py) ----------------------
+trafilatura>=1.12
+
+# --- Tests / linting ---------------------------------------------------------
+pytest>=8.0
+ruff>=0.6
+
+# --- Optional: local cross-encoder reranker (large download; see docs/TECHNICAL.md) -----
+# sentence-transformers>=3.0
+# torch>=2.2

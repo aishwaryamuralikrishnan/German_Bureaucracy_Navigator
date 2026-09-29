@@ -1,0 +1,26 @@
+# Runtime dependencies: the Streamlit app, the knowledge-base build and viewing evaluation runs.
+# This is also what Streamlit Community Cloud installs. Tests, linting and RUNNING the evaluation
+# need the extras in requirements-dev.txt.
+
+# --- Core app ---------------------------------------------------------------
+streamlit>=1.50,<2.0
+langchain>=1.0,<2.0
+langchain-openai>=1.0,<2.0
+langchain-chroma>=1.0,<2.0
+langchain-text-splitters>=1.0,<2.0
+langgraph>=1.0,<2.0
+openai>=1.50,<3.0
+chromadb>=1.0,<2.0
+rank-bm25>=0.2.2
+pydantic>=2.7,<3.0
+pyyaml>=6.0
+requests>=2.32
+tenacity>=8.2
+python-dateutil>=2.9
+holidays>=0.50
+python-dotenv>=1.0
+
+# --- Evaluation page (viewing runs, regenerating the PDF) -------------------
+matplotlib>=3.8         # charts in the PDF report
+reportlab>=4.0          # PDF report
+altair>=5.0             # charts on the Evaluation page (already a Streamlit dependency)

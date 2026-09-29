@@ -1,0 +1,98 @@
+# German Bureaucracy Navigator — runtime settings
+# Everything here can be changed without touching code.
+
+app:
+  title: "German Bureaucracy Navigator"
+  default_language: "auto"        # auto | de | en
+  default_city: ""              # empty = not set; never assume a city the user did not mention
+  # Suggestions only — the sidebar accepts any city name you type.
+  cities: ["Berlin", "Munich", "Hamburg", "Frankfurt", "Cologne", "Stuttgart", "Düsseldorf", "Leipzig", "Dresden", "Hannover", "Nuremberg", "Bremen", "Rostock"]
+  max_input_chars: 2000
+  rate_limit:
+    max_requests: 20
+    window_seconds: 600
+
+llm:
+  provider: "openrouter"
+  base_url: "https://openrouter.ai/api/v1"
+  api_key_env: "OPENROUTER_API_KEY"
+  # Any tool-calling-capable model on OpenRouter works. First entry is the default.
+  # Must be enabled for your OpenRouter key (Settings → Privacy / allowed models). First entry = default.
+  models:
+    - "openai/gpt-4o-mini"
+    - "anthropic/claude-haiku-4.5"
+    - "google/gemini-2.5-flash"
+    - "openai/gpt-4.1-mini"
+  small_model: "openai/gpt-4o-mini"   # used for query expansion + topic gate
+  temperature: 0.1
+  timeout_seconds: 60
+  max_retries: 2
+  max_tool_calls_per_turn: 6
+
+embeddings:
+  # Via OpenRouter /embeddings. Alternatives available on most accounts (rebuild the index after changing):
+  #   openai/text-embedding-3-large  — higher quality, 3072 dims, ~6x the (tiny) cost
+  #   qwen/qwen3-embedding-8b        — strong multilingual open model, 4096 dims
+  model: "openai/text-embedding-3-small"   # multilingual; via OpenRouter /embeddings
+  batch_size: 32
+  timeout_seconds: 30          # per request; ingestion reports every retry instead of hanging silently
+  max_attempts: 3
+
+vectorstore:
+  provider: "chroma"
+  collection_name: "germany_navigator"
+  persist_dir: "data/chroma"
+
+chunking:
+  chunk_size_chars: 1800        # ~450 tokens
+  chunk_overlap_chars: 250
+  prefix_heading_path: true
+
+retrieval:
+  dense_k: 20
+  bm25_k: 20
+  rrf_k: 60                     # RRF smoothing constant
+  final_k: 5
+  # Weak-match detection (conservative). "auto" (recommended): a passage is weak only if BOTH
+  # (a) it shares no keywords with the question (not a BM25 hit) AND (b) its similarity does not
+  # stand out from the question's similarity to the whole corpus (robust z-score < coverage_z).
+  # Put a number in min_similarity to use an absolute cosine cut-off instead. If ALL returned
+  # passages are weak, the tool tells the model the knowledge base does not cover the question;
+  # otherwise the model judges from the passages themselves.
+  min_similarity: auto
+  coverage_z: 2.5
+  query_expansion:
+    enabled: true
+    max_variants: 3
+  reranker:
+    enabled: true
+    provider: "openrouter"      # openrouter (Cohere Rerank via OpenRouter, ~$0.002/search) | local (sentence-transformers) | none
+    model: "cohere/rerank-4-fast"   # or cohere/rerank-4-pro; local: BAAI/bge-reranker-v2-m3
+    candidates: 20              # fused candidates sent to the reranker
+    # Third coverage signal: a passage whose cross-encoder relevance is below this is weak no matter how many
+    # keywords it shares with the question (a passage about Anmeldung that merely contains "children" must not
+    # count as covering a Kindergeld question). Calibrated on the 2026-09-16 evaluation run with cohere/rerank-4-fast:
+    # best passage of every covered question ≥ 0.736 (usually 0.8–0.93); Kindergeld 0.54, citizenship 0.62 (not covered).
+    # 0.65 sits in that gap. Re-calibrate (Evaluation page → relevance scores) if you change the reranker model.
+    min_relevance: 0.65
+
+guardrails:
+  injection_check: true
+  pii_redaction: true
+  topic_gate:
+    enabled: true               # one extra cheap LLM call per message
+  require_citations: true
+  grounding_check:
+    enabled: true               # one extra small-model call per sourced answer: flags claims no passage/tool supports
+    model: ""                   # empty = llm.small_model
+    max_claims: 12              # unsupported claims listed (all of them feed the revision; the note shows the first 4)
+    revise: true                # rewrite the answer to drop or label unsupported claims (one more small-model call, only when needed)
+  disclaimer_topics: ["residence_permits", "taxes", "health_insurance", "family_reunification"]
+
+frankfurter:
+  # Free ECB reference rates, no API key. Mirrors tried in order.
+  base_urls:
+    - "https://api.frankfurter.dev/v1"
+    - "https://api.frankfurter.app"
+  timeout_seconds: 10
+  cache_ttl_seconds: 21600     # 6 h — the ECB publishes one fixing per working day
