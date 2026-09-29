@@ -238,7 +238,8 @@ table, keep each column to one type.
 
 ## 11. Deploy on Streamlit Community Cloud
 
-The app runs unchanged on [Streamlit Community Cloud](https://share.streamlit.io) (free, public URL). What the
+The app runs unchanged on [Streamlit Community Cloud](https://share.streamlit.io) (free, public URL) — the live
+instance is at <https://germanbureaucracynavigator-nv4spe5owjrbx5kkumhffp.streamlit.app/>. What the
 code already does for that environment: the API key is read from the environment *or* from Streamlit's
 secrets store (`navigator/config.py`); an empty knowledge base is built automatically on first load, because the
 Chroma index is not in the repository and the cloud container starts with an empty disk after every restart

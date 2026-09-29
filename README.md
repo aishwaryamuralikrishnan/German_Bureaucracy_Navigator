@@ -12,7 +12,7 @@ answer comes back in the language you asked in (or the one you pin in the sideba
 
 | | |
 |---|---|
-| **Try it** | Live app: *coming soon on Streamlit Community Cloud* · run locally in five minutes with [docs/TECHNICAL.md](docs/TECHNICAL.md) |
+| **Try it** | **[Live app on Streamlit Community Cloud](https://germanbureaucracynavigator-nv4spe5owjrbx5kkumhffp.streamlit.app/)** (first load after idle takes about a minute while the knowledge base is built) · run locally in five minutes with [docs/TECHNICAL.md](docs/TECHNICAL.md) |
 | **Results** | Hit-rate@5 **100 %** · MRR **0.97** · faithfulness **0.95** · tool selection **21 / 23** · not-covered handling **3 / 3** — 23-question labelled set, run of 17 Sep 2026, $0.25 ([§4](#4-evaluation)) |
 | **Stack** | LangChain 1.x + LangGraph · OpenRouter · ChromaDB · RAGAS · Streamlit |
 | **How it fits together** | [Architecture diagram](#architecture) below · [agent & tools](#1-the-langchain-agent) · [grounding check](#2-grounding-check) · [guardrails](#3-guardrails-and-out-of-domain-questions) |
@@ -186,8 +186,8 @@ model, occasionally lets an inferred detail through (Q07) or is stricter than th
 
 Planned next steps: LangSmith tracing for per-turn cost and latency; growing the knowledge base from
 `data/sources.yaml` with the fetch script and adding the family-benefit topics the probes showed users ask about;
-a Qdrant backend behind the same retriever interface; scheduled re-runs of the evaluation to catch regressions when
-thresholds change each January; and deployment on Streamlit Community Cloud.
+a Qdrant backend behind the same retriever interface; and scheduled re-runs of the evaluation to catch regressions
+when thresholds change each January.
 
 ---
 
