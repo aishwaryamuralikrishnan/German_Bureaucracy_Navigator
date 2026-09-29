@@ -17,6 +17,8 @@ answer comes back in the language you asked in (or the one you pin in the sideba
 | **Stack** | LangChain 1.x + LangGraph · OpenRouter · ChromaDB · RAGAS · Streamlit |
 | **How it fits together** | [Architecture diagram](#architecture) below · [agent & tools](#1-the-langchain-agent) · [grounding check](#2-grounding-check) · [guardrails](#3-guardrails-and-out-of-domain-questions) |
 
+![Demo: a student arrival question with deadline tool, knowledge-base search and citations; a salary question chaining currency conversion into the Blue Card check; a not-covered question answered with a referral; a prompt-injection attempt stopped by the guardrails](docs/img/navigator_demo_full.gif)
+
 Setup, commands and troubleshooting live in **[docs/TECHNICAL.md](docs/TECHNICAL.md)**.
 
 <a id="architecture"></a>
@@ -102,11 +104,30 @@ spread.
 
 ## 2. Grounding check
 
+After the agent has written its answer, a second, small model reads it next to the passages and tool results of
+that turn and lists every concrete claim they do not support; those claims are removed or labelled *"Not from the
+knowledge base"* before the answer is shown, with the original kept behind an expander. A deterministic figure guard
+protects against an over-zealous judge: a flagged claim whose numbers, dates or durations all appear in the evidence
+is kept, and a rewrite that would drop a supported figure is rejected — so no correct threshold or deadline is ever
+deleted by mistake.
+
 ![Grounding check](docs/img/grounding_check.png)
 
 ## 3. Guardrails and out-of-domain questions
 
+Five checks run before the model sees a message: length, redaction of personal data (tax ID, IBAN, passport and
+phone numbers, e-mail addresses are replaced by placeholders), prompt-injection attempts in English or German,
+requests for help with fraud such as registering at an address you do not live at or forging documents, and a topic
+gate for questions unrelated to German bureaucracy. A message that fails a check is answered with a fixed text and the
+model is never called, so a refusal cannot be talked around; the agent itself is rate-limited per session.
+
 ![Guardrails](docs/img/guardrails.png)
+
+Questions that are on topic but outside the knowledge base — Kindergeld, citizenship, Elterngeld — pass the
+guardrails and are handled by the retrieval itself: when every returned passage is a weak match, the search tool
+tells the model to say the knowledge base does not cover the question and to name the responsible authority, without
+stating any amount, condition or procedure; the grounding check then removes anything the model added from memory
+anyway.
 
 ![Not covered by the knowledge base](docs/img/not_covered.png)
 
