@@ -1,5 +1,5 @@
 # ruff: noqa: E702
-"""Regenerate the 9 README figures in docs/img/ (diagrams + result charts). Pure matplotlib, no network.
+"""Regenerate the 11 README figures in docs/img/ (diagrams + result charts). Pure matplotlib, no network.
 
     python docs/make_figures.py
 
@@ -133,24 +133,59 @@ def knowledge_base() -> None:
     fig.savefig(OUT / "knowledge_base.png", bbox_inches="tight", facecolor="white"); plt.close(fig)
 
 
+def kb_build() -> None:
+    """§1.2.1 — build time: markdown → chunks → vectors → Chroma records."""
+    fig, ax = plt.subplots(figsize=(15, 3.4), dpi=200); ax.set_xlim(0, 34); ax.set_ylim(0, 6.6); ax.axis("off")
+    ax.text(17, 6.2, "Building the knowledge base — once, by scripts/ingest.py or automatically when the app finds the index empty",
+            ha="center", fontsize=9.2, fontweight="bold", color=INK)
+    y, h = 1.2, 3.8
+    box(ax, 0.4, y, 6.4, h, f"{DOCS} markdown documents", "data/processed/*.md\nYAML front matter: title, topic,\njurisdiction, language, source URL", ts=9.4, bs=7.4)
+    box(ax, 7.8, y, 7.8, h, "Chunking", "split on headings (#, ##, ###), then to\n≈ 1,800 characters with 250 overlap;\nevery chunk prefixed “[title > section]”\nand given the document's metadata → " + f"{CHUNKS} chunks", ts=9.4, bs=7.4)
+    box(ax, 16.6, y, 7.4, h, "Embedding", "each chunk text → 1,536-number vector\nopenai/text-embedding-3-small\nvia OpenRouter, batches of 32\n(the only network step)", fc=LIGHTBLUE, ec=BLUE, ts=9.4, bs=7.4)
+    box(ax, 25.0, y, 8.6, h, "Chroma collection — data/chroma/", "one record per chunk:\nchunk id · vector · full text · metadata\nSQLite (text, metadata) + HNSW index (vectors);\nthe only stored copy of the chunks", fc="#f3eefc", ec=PURPLE, ts=9.4, bs=7.4)
+    for x1, x2 in ((6.8, 7.8), (15.6, 16.6), (24.0, 25.0)):
+        arrow(ax, x1, y + h / 2, x2, y + h / 2)
+    fig.savefig(OUT / "kb_build.png", bbox_inches="tight", facecolor="white"); plt.close(fig)
+
+
 def hybrid_rag() -> None:
-    fig, ax = plt.subplots(figsize=(15, 6.6), dpi=200); ax.set_xlim(0, 34); ax.set_ylim(0, 13.5); ax.axis("off")
-    ax.text(17, 13.1, "Indexing: markdown split on headings (h1–h3), then recursively to ≈ 1,800 characters (250 overlap); each chunk is prefixed with “title > section” and stored with topic · jurisdiction · language",
-            ha="center", fontsize=8.6, color=INK2)
-    box(ax, 0.4, 7.0, 3.9, 3.6, "Question", "English or German,\ne.g. „Was ist eine\nWohnungsgeber-\nbestätigung?“", fc=LIGHTBLUE, ec=BLUE, ts=9.5, bs=7.6)
-    box(ax, 5.2, 7.0, 4.7, 3.6, "Bilingual query\nexpansion", "small model + glossary:\nGerman official term,\nEnglish phrasing,\n§ reference", ts=9.5, bs=7.6)
-    box(ax, 10.9, 9.9, 5.0, 2.8, "BM25 (keywords)", "exact terms: Anmeldung,\n§ 17 BMG, Sperrkonto", fc="#fff1ec", ec=ORANGE)
-    box(ax, 10.9, 4.7, 5.0, 2.8, "Dense (embeddings)", "text-embedding-3-small,\ncosine search in Chroma", fc=LIGHTBLUE, ec=BLUE)
-    box(ax, 17.0, 7.2, 4.6, 3.2, "RRF fusion", "reciprocal rank fusion\nof both ranked lists\n+ city filter, topic hint", fc="#eaf7f1", ec=GREEN)
-    box(ax, 22.5, 7.2, 5.2, 3.2, "Reranker", "cohere/rerank-4-fast reads\nquestion + passage together\nand re-orders the top 20", fc="#fff8e6", ec=AMBER)
-    box(ax, 28.6, 7.2, 5.0, 3.2, "Top-5 passages", "[S1]…[S5] with title,\nsection, relevance score\nand weak / ok flag", fc=LIGHTBLUE, ec=BLUE)
-    box(ax, 10.9, 0.6, 5.0, 2.8, "Chroma vector DB", f"{CHUNKS} chunks · metadata:\ntopic · jurisdiction ·\nlanguage", fc="#f3eefc", ec=PURPLE)
-    box(ax, 17.0, 0.6, 16.6, 2.8, "Weak-coverage check", "a passage is weak if it shares no discriminative keyword with the question AND does not stand out\nsemantically (robust z-score), OR the reranker scores it below 0.65 — if every returned passage is weak,\nthe assistant says that the knowledge base does not cover the question", bs=7.8)
-    arrow(ax, 4.3, 8.8, 5.2, 8.8); arrow(ax, 9.9, 9.2, 10.9, 11.2); arrow(ax, 9.9, 8.4, 10.9, 6.0)
-    arrow(ax, 15.9, 11.2, 17.0, 9.2); arrow(ax, 15.9, 6.0, 17.0, 8.4); arrow(ax, 21.6, 8.8, 22.5, 8.8); arrow(ax, 27.7, 8.8, 28.6, 8.8)
-    arrow(ax, 13.4, 4.7, 13.4, 3.4, color=PURPLE, style="<|-|>"); arrow(ax, 25.1, 7.2, 25.1, 3.4, color=MUTED, ls="--")
+    """§1.2.2 — query time overview: question → expansion → hybrid search (one box) → reranker → top 5."""
+    fig, ax = plt.subplots(figsize=(15, 5.6), dpi=200); ax.set_xlim(0, 34); ax.set_ylim(0, 11.6); ax.axis("off")
+    y, h = 7.2, 3.6
+    box(ax, 0.4, y, 4.4, h, "Question", "English or German,\ne.g. „Was ist eine\nWohnungsgeber-\nbestätigung?“", fc=LIGHTBLUE, ec=BLUE, ts=9.5, bs=7.6)
+    box(ax, 5.8, y, 5.4, h, "Bilingual query\nexpansion", "small model + glossary:\nGerman official term,\nEnglish phrasing,\n§ reference", ts=9.5, bs=7.6)
+    box(ax, 12.2, y, 8.2, h, "Hybrid search", "keyword search (BM25) and\nsemantic search (embeddings)\nover the same chunks, merged\nwith reciprocal rank fusion\n→ top 20 candidates", fc="#eaf7f1", ec=GREEN, ts=9.8, bs=7.6)
+    box(ax, 21.6, y, 5.8, h, "Reranker", "cohere/rerank-4-fast reads\nquestion + passage together\nand re-orders the candidates", fc="#fff8e6", ec=AMBER, ts=9.5, bs=7.6)
+    box(ax, 28.4, y, 5.2, h, "Top-5 passages", "[S1]…[S5] with title,\nsection, relevance score\nand weak / ok flag", fc=LIGHTBLUE, ec=BLUE, ts=9.5, bs=7.6)
+    for x1, x2 in ((4.8, 5.8), (11.2, 12.2), (20.4, 21.6), (27.4, 28.4)):
+        arrow(ax, x1, y + h / 2, x2, y + h / 2)
+    box(ax, 12.2, 1.0, 8.2, 3.2, "Chroma vector DB", f"{CHUNKS} chunks — for each: id, vector,\nfull text, metadata (topic ·\njurisdiction · language)", fc="#f3eefc", ec=PURPLE, ts=9.5, bs=7.6)
+    arrow(ax, 16.3, y, 16.3, 4.2, color=PURPLE, style="<|-|>")
+    ax.text(16.6, 5.7, "texts → keyword index\nvectors → semantic search", fontsize=7.2, color=PURPLE, ha="left", va="center")
+    box(ax, 21.0, 1.0, 7.0, 3.2, "Weak-coverage check", "a passage is weak if it shares no\ndiscriminative keyword with the\nquestion AND does not stand out\nsemantically, OR the reranker scores\nit below 0.65; all weak → “not covered”", bs=7.0)
+    arrow(ax, 24.5, y, 24.5, 4.2, color=MUTED, ls="--")
     fig.savefig(OUT / "hybrid_rag.png", bbox_inches="tight", facecolor="white"); plt.close(fig)
 
+
+def hybrid_search() -> None:
+    """§1.2.3 — inside the hybrid search: keyword and semantic search over the same chunks, Chroma between them."""
+    fig, ax = plt.subplots(figsize=(15, 6.6), dpi=200); ax.set_xlim(0, 34); ax.set_ylim(0, 14.6); ax.axis("off")
+    ax.text(17, 14.2, "Inside the hybrid search — two searches over the same chunks, one store", ha="center", fontsize=10.5, fontweight="bold", color=INK)
+    ax.text(17, 13.55, "runs for the question and each rewritten variant; the keyword search is local, the semantic search makes one embedding call per variant", ha="center", fontsize=8.2, color=MUTED)
+    box(ax, 8.0, 9.9, 18.0, 2.9, "Keyword search — BM25", "scores against the BM25 index held in memory — built at app start from the chunk texts\nread out of Chroma, rebuilt in milliseconds, never written to disk\n→ ranked list of the 20 best chunks (text, metadata, BM25 score)", fc="#fff1ec", ec=ORANGE, ts=9.8, bs=7.4)
+    box(ax, 11.0, 5.7, 12.0, 2.6, "Chroma — the only stored copy of the chunks", f"{CHUNKS} records: id · vector · full text · metadata — on disk, written once at build time", fc="#f3eefc", ec=PURPLE, ts=9.6, bs=7.4)
+    box(ax, 8.0, 1.3, 18.0, 2.9, "Semantic search — embeddings", "the question vector is compared with the stored chunk vectors in Chroma's HNSW index\n(cosine distance; the jurisdiction filter is applied inside the search)\n→ ranked list of the 20 nearest chunks (text, metadata, cosine similarity)", fc=LIGHTBLUE, ec=BLUE, ts=9.8, bs=7.4)
+    box(ax, 0.4, 5.4, 5.8, 3.2, "Query variant", "+ optional city →\njurisdiction filter\n{federal, munich}", fc=LIGHTBLUE, ec=BLUE, ts=9.6, bs=7.4)
+    box(ax, 27.8, 5.4, 5.8, 3.2, "Reciprocal rank\nfusion", "each list adds 1/(60 + rank)\nper chunk; sum, sort →\ntop 20 for the reranker", fc="#eaf7f1", ec=GREEN, ts=9.6, bs=7.2)
+    arrow(ax, 6.2, 7.6, 8.0, 11.3); arrow(ax, 6.2, 6.4, 8.0, 2.7)
+    arrow(ax, 26.0, 11.3, 27.8, 7.6); arrow(ax, 26.0, 2.7, 27.8, 6.4)
+    ax.text(27.3, 9.9, "20 chunks,\nranked", fontsize=7.0, color=MUTED, ha="left", va="center")
+    ax.text(27.3, 4.1, "20 chunks,\nranked", fontsize=7.0, color=MUTED, ha="left", va="center")
+    arrow(ax, 17.0, 8.3, 17.0, 9.9, color=PURPLE)
+    ax.text(17.3, 9.1, "chunk texts — read once at app start to build the BM25 index", fontsize=7.4, color=PURPLE, ha="left", va="center")
+    arrow(ax, 17.0, 5.7, 17.0, 4.2, color=PURPLE, style="<|-|>")
+    ax.text(17.3, 4.95, "vectors — nearest-neighbour search on every query", fontsize=7.4, color=PURPLE, ha="left", va="center")
+    fig.savefig(OUT / "hybrid_search.png", bbox_inches="tight", facecolor="white"); plt.close(fig)
 
 
 def _example_strip(ax, cells, y, h, label="Example"):
@@ -319,5 +354,5 @@ def results_faithfulness() -> None:
 
 
 if __name__ == "__main__":
-    architecture(); knowledge_base(); hybrid_rag(); grounding_check(); guardrails(); not_covered(); evaluation_metrics(); results_retrieval(); results_faithfulness()
-    print(f"written 9 figures to {OUT}")
+    architecture(); knowledge_base(); kb_build(); hybrid_rag(); hybrid_search(); grounding_check(); guardrails(); not_covered(); evaluation_metrics(); results_retrieval(); results_faithfulness()
+    print(f"written 11 figures to {OUT}")

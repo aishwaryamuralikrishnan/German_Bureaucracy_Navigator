@@ -17,7 +17,7 @@ answer comes back in the language you asked in (or the one you pin in the sideba
 | **Stack** | LangChain 1.x + LangGraph · OpenRouter · ChromaDB · RAGAS · Streamlit |
 | **How it fits together** | [Architecture diagram](#architecture) below · [agent & tools](#1-the-langchain-agent) · [grounding check](#2-grounding-check) · [guardrails](#3-guardrails-and-out-of-domain-questions) |
 
-![Demo: a student arrival question with deadline tool, knowledge-base search and citations; a salary question chaining currency conversion into the Blue Card check; a not-covered question answered with a referral; a prompt-injection attempt stopped by the guardrails](docs/img/navigator_demo_full.gif)
+![Demo: an English question about moving to Munich on 20 December 2026 answered with the registration deadline from the deadline calculator, the responsible office, late-registration consequences and the documents to bring, each cited to a knowledge-base passage; a German question from a married couple in Berlin on tax class 3/5 versus 4/4, who may switch, and the monthly net in class 3 from the net-salary calculator, answered in German; a Kindergeld question the knowledge base does not cover, answered with a referral to the Familienkasse and no amounts](docs/img/navigator_demo_full.gif)
 
 Setup, commands and troubleshooting live in **[docs/TECHNICAL.md](docs/TECHNICAL.md)**.
 
@@ -44,32 +44,53 @@ matching vocabulary to retrieve against.
 
 ### 1.2 Hybrid (advanced) RAG
 
-![Hybrid RAG](docs/img/hybrid_rag.png)
+#### 1.2.1 Building the knowledge base
+
+![Building the knowledge base](docs/img/kb_build.png)
+
+The knowledge base is built once, by `scripts/ingest.py` or automatically when the app finds the index empty.
+
+Each of the 18 markdown documents is split on its headings and then, where a section is still long, into pieces of
+about 1,800 characters with a 250-character overlap, every chunk prefixed with its *title > section* path — 103 chunks
+in all.
+
+Each chunk is embedded with `text-embedding-3-small` via OpenRouter and stored in **Chroma** as one record holding the
+chunk id, the vector, the full text and the metadata (topic, jurisdiction, language, source URL), so Chroma is both the
+vector index and the only stored copy of the text.
+
+#### 1.2.2 Retrieval pipeline
+
+![Retrieval pipeline](docs/img/hybrid_rag.png)
+
+German terms in an English knowledge base are bridged before the search: a small model rewrites the question into up
+to three variants — the German official term from the glossary, an English phrasing and, where relevant, the law
+paragraph — so *"blocked account"* also searches for *Sperrkonto* and vice versa. Each variant then goes through the
+hybrid search described in [§1.2.3](#123-hybrid-search), which returns the 20 best candidates.
+
+A Cohere cross-encoder (`rerank-4-fast`, via OpenRouter) reads question and passage together and re-orders them, which
+is what lifts the expected document to rank 1 in almost every case (MRR 0.85 → 0.97).
+
+Finally a passage is flagged *weak* when it shares no discriminative keyword with the question and does not stand out
+semantically, or when the reranker scores it below 0.65; if every returned passage is weak, the tool tells the model
+that the knowledge base does not cover the question — the mechanism behind the not-covered handling in §3.
+
+#### 1.2.3 Hybrid search
+
+![Hybrid search](docs/img/hybrid_search.png)
 
 Bureaucracy questions come in two kinds — exact administrative terms and law references (*Sperrkonto*, *§ 17 BMG*),
 which keyword search finds and embeddings often blur, and paraphrased everyday questions (*"where do I tell the city I
-moved?"*) that only semantic search catches — so the retriever combines both:
+moved?"*) that only semantic search catches — so the retriever runs both over the same chunks.
 
-- **Hybrid search with RRF.** BM25 and dense cosine search run over the same chunks, and the two ranked lists are
-  fused with Reciprocal Rank Fusion, which rewards passages both methods rate highly without needing their scores to
-  be comparable.
-- **Chunking and storage in Chroma.** Each markdown file is split on its headings first and then recursively to about
-  1,800 characters with a 250-character overlap; every chunk is prefixed with its *title > section* path and stored in
-  **Chroma**, chosen because it runs embedded in the app with a persistent local directory, needs no server and keeps
-  the topic, jurisdiction and language metadata that the city filter and topic hint rely on.
-- **Bilingual query expansion.** German terms in an English knowledge base are bridged before the search: a small
-  model rewrites the question into up to three variants — the German official term from the glossary, an English
-  phrasing and, where relevant, the law paragraph — so *"blocked account"* also searches for *Sperrkonto* and vice
-  versa, while BM25 keeps `§ 17` as a single keyword and drops German and English stop words.
-- **Reranking.** A Cohere cross-encoder (`rerank-4-fast`, via OpenRouter) reads question and passage together and
-  re-orders the top 20, which is what lifts the expected document to rank 1 in almost every case (MRR 0.85 → 0.97).
-- **Weak-coverage detection.** A passage is flagged *weak* when it shares no discriminative keyword with the question
-  and does not stand out semantically, or when the reranker scores it below 0.65. If every returned passage is weak,
-  the tool tells the model that the knowledge base does not cover the question — the mechanism behind the not-covered
-  handling in §3.
+**Keyword search** (BM25) tokenises the question the same way as the chunks and scores every chunk on how often it
+contains the question's rare words, using an index built in memory at app start from the texts in Chroma.
 
-The evaluation confirms the design as a whole: dense alone and BM25 alone each miss one question in twenty, hybrid
-finds all of them.
+**Semantic search** embeds the question and asks Chroma for the nearest vectors by cosine similarity, with the
+jurisdiction filter applied inside the search.
+
+The two ranked lists are fused with Reciprocal Rank Fusion, which rewards passages both methods rate highly without
+needing their scores to be comparable; the evaluation confirms the combination — dense alone and BM25 alone each miss
+one question in twenty, hybrid finds all of them.
 
 ### 1.3 Tools
 
